@@ -1,0 +1,26 @@
+[
+  {
+    "model": "momo_server.operator",
+    "pk": 1,
+    "fields": {
+      "name": "mtn",
+      "tag": "mtn-cm",
+      "country": "cameroon",
+      "description": "mtn cameroon",
+      "created_at": "2019-01-01T13:20:30+01:00",
+      "updated_at":  "2019-01-01T13:20:30+01:00"
+    }
+  },
+  {
+    "model": "momo_server.operator",
+    "pk": 2,
+    "fields": {
+      "name": "orange",
+      "tag": "orange-cm",
+      "country": "cameroon",
+      "description": "orange cameroon",
+      "created_at": "2019-01-01T13:20:30+01:00",
+      "updated_at":  "2019-01-01T13:20:30+01:00"
+    }
+  }
+]
