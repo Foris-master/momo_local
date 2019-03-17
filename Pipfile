@@ -12,6 +12,7 @@ python-gsmmodem-new = "*"
 websocket-client = "*"
 python-dotenv = "*"
 requests = "*"
+django-cron = "*"
 
 [requires]
 python_version = "3.7"

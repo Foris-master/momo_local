@@ -112,3 +112,4 @@ venv.bak/
 !.elasticbeanstalk/*.global.yml
 .ebextensions/00environmentVariables.config
 requirements.txt
+main.py

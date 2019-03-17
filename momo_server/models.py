@@ -43,9 +43,9 @@ class Answer(models.Model):
 class Station(models.Model):
     name = models.CharField(max_length=100, blank=False)
     state = models.CharField(choices=STATION_STATES, default='offline', max_length=100)
-    phone_number = models.CharField(unique=True, max_length=14, blank=False)
+    phone_number = models.CharField(unique=True, max_length=14, blank=True, null=True)
     imei = models.CharField(unique=True, max_length=20, null=True, blank=True)
-    imsi = models.CharField(max_length=20)
+    imsi = models.CharField(max_length=20, unique=True, blank=False )
     port = models.CharField(max_length=10, null=True, blank=True)
     operator = models.ForeignKey(Operator, on_delete=models.CASCADE, related_name='stations')
     description = models.TextField(blank=True)
@@ -66,7 +66,7 @@ class Transaction(models.Model):
     status = models.CharField(choices=TRANSACTION_STATUSES, default='new', max_length=100)
     recipient = models.CharField(max_length=14)
     user = models.IntegerField(blank=False)
-    mobile_wallet = models.CharField(blank=False, unique=True, max_length=20)
+    mobile_wallet = models.CharField(blank=False, max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -93,12 +93,9 @@ class Proof(models.Model):
         return str(self.amount)
 
 
-class SMS(models.Model):
+class SmsSender(models.Model):
     operator = models.ForeignKey(Operator, on_delete=models.CASCADE, related_name='sms')
-    content = models.TextField(blank=False)
-    sender = models.CharField(max_length=14)
-    station = models.ForeignKey(Station, on_delete=models.CASCADE)
-    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
+    name = models.TextField(blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -106,4 +103,20 @@ class SMS(models.Model):
         ordering = ('updated_at',)
 
     def __str__(self):
-        return str(self.content)
+        return str(self.name)
+
+
+class Sms(models.Model):
+    content = models.TextField(blank=False)
+    references = models.TextField(blank=True, null=True)
+    station = models.ForeignKey(Station, on_delete=models.CASCADE)
+    sender = models.ForeignKey(SmsSender, on_delete=models.CASCADE)
+    received_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('updated_at',)
+
+    def __str__(self):
+        return self.content[:20]

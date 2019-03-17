@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cron',
     'momo_server'
 ]
 
@@ -124,3 +125,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#  --- cron config
+
+CRON_CLASSES = [
+    "momo_server.cron.FetchStationJob",
+    # "momo_server.cron.UpdateTransactionStatus"
+    # ...
+]
