@@ -7,12 +7,12 @@ Simple demo app that initiates a USSD session, reads the string response and clo
 Note: for this to work, a valid USSD string for your network must be used.
 """
 
-# from __future__ import print_function
-from pprint import pprint
-from time import time
-import sys
 import glob
+# from __future__ import print_function
+import sys
+
 import serial
+import serial.tools.list_ports
 from gsmmodem import GsmModem
 from gsmmodem.exceptions import CommandError, TimeoutException
 
@@ -22,7 +22,7 @@ USSD_STRING = '#149#'
 PIN = None  # SIM card PIN (if any)
 
 
-def available_ports():
+def available_ports2():
     aports = []
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
@@ -43,6 +43,11 @@ def available_ports():
             pass
 
     return aports
+
+
+def available_ports():
+    myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
+    return [p[0] for p in myports if 'location=' in p[2].lower()]
 
 
 def enabled_ports(aports):

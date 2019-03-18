@@ -18,6 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 from time import sleep, time
 
 import serial
+import serial.tools.list_ports
 from gsmmodem.exceptions import TimeoutException, CommandError
 
 from momo_server.models import Operator, Station
@@ -89,8 +90,11 @@ class ModemDriver:
     # self.modem = response['modem']
     # self.data = response['data']
     # self.command = response['command']
-
     def available_ports(self):
+        myports = [tuple(p) for p in list(serial.tools.list_ports.comports())]
+        return [p[0] for p in myports if 'location=' in p[2].lower()]
+
+    def available_ports_old(self):
         """ Lists serial port names
 
                 :raises EnvironmentError:
