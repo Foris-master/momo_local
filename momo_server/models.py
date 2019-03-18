@@ -108,10 +108,23 @@ class SmsSender(models.Model):
 
 class Sms(models.Model):
     content = models.TextField(blank=False)
+    metadata = models.CharField(max_length=255,null=True)
     references = models.TextField(blank=True, null=True)
     station = models.ForeignKey(Station, on_delete=models.CASCADE)
     sender = models.ForeignKey(SmsSender, on_delete=models.CASCADE)
     received_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('updated_at',)
+
+    def __str__(self):
+        return self.content[:20]
+
+class SmsMask(models.Model):
+    content = models.TextField(blank=False)
+    sender = models.ForeignKey(SmsSender, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

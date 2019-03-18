@@ -130,6 +130,7 @@ STATIC_URL = '/static/'
 
 CRON_CLASSES = [
     "momo_server.cron.FetchStationJob",
+    "momo_server.cron.CollectSmsJob",
     # "momo_server.cron.UpdateTransactionStatus"
     # ...
 ]

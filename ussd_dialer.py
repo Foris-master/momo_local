@@ -15,6 +15,7 @@ from gsmmodem.exceptions import TimeoutException, CommandError, InvalidStateExce
 from gsmmodem.modem import GsmModem
 # [{'COM10': 'Orange CAM'}, {'COM11': 'MTN CAM'}] no wallet 656851274  698126350 677004603
 #  699508091  653560544 660867001
+# {'/dev/ttyACM7':'MTN CAM'} {'/dev/ttyACM6':'Orange CAM'}
 PORT = 'COM10'
 BAUDRATE = 115200
 # USSD_STRING = '*135*8#'

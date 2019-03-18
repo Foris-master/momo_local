@@ -1,0 +1,22 @@
+[
+  {
+    "model": "momo_server.smsmask",
+    "pk": 1,
+    "fields": {
+      "content": "",
+      "sender": 1,
+      "created_at": "2019-01-01T13:20:30+01:00",
+      "updated_at": "2019-01-01T13:20:30+01:00"
+    }
+  },
+  {
+    "model": "momo_server.smsmask",
+    "pk": 1,
+    "fields": {
+      "content": "Depot vers {phone_number} {name} reussi from {station_number} {station_name}. Informations detaillees : Montant transaction : {amount}FCFA, ID de Transaction : {mno_id}, Frais : {cost}FCFA, Commission : {commission}  FCFA, Montant Net Debite : {removed}FCFA, Nouveau Solde : {new_balance}FCFA.",
+      "sender": 7,
+      "created_at": "2019-01-01T13:20:30+01:00",
+      "updated_at": "2019-01-01T13:20:30+01:00"
+    }
+  }
+]
