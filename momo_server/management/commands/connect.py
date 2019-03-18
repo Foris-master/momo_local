@@ -40,6 +40,9 @@ class Command(BaseCommand):
                     },
                 )
                 self.token = r.json()['access_token']
+                with open('token_save.txt', 'w') as token_file:
+                    token_file.write(self.token)
+                    token_file.close()
                 # print(r.json()['access_token'])
 
             ws = websocket.WebSocketApp(
