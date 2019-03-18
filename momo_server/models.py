@@ -46,7 +46,7 @@ class Station(models.Model):
     phone_number = models.CharField(unique=True, max_length=14, blank=True, null=True)
     imei = models.CharField(unique=True, max_length=20, null=True, blank=True)
     imsi = models.CharField(max_length=20, unique=True, blank=False )
-    port = models.CharField(max_length=10, null=True, blank=True)
+    port = models.CharField(max_length=20, null=True, blank=True)
     operator = models.ForeignKey(Operator, on_delete=models.CASCADE, related_name='stations')
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
