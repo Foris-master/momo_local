@@ -126,7 +126,7 @@ def proceed_transaction(sender, **kwargs):
 class Proof(models.Model):
     amount = models.IntegerField(blank=False)
     mno_id = models.CharField(blank=False, max_length=100)
-    mno_respond = models.CharField(blank=False, max_length=255)
+    mno_respond = models.TextField()
     station = models.ForeignKey(Station, on_delete=models.CASCADE)
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

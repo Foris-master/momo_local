@@ -369,7 +369,7 @@ class ModemDriver:
 
             # try:
             # memory can SM (sim) ME ( device storage) or MT for all
-            for sms in modem.listStoredSms(delete=False):
+            for sms in modem.listStoredSms(delete=True):
                 is_next = False
                 tmp = {
                     'index': sms.index,
