@@ -503,9 +503,9 @@ class ModemDriver:
             try:
                 response = self.reply(response, a)
             except TimeoutException as ex:
-                return {'status': 'failed', 'msg': 'timeout reached'}
+                return {'status': 'failed', 'msg': 'timeout reached', 'data': {'status':'timeout'}}
             except Exception as ex:
-                return {'status': 'failed', 'msg': str(ex)}
+                return {'status': 'failed', 'msg': str(ex), 'data':   {'status':'unknow'}}
 
         if 'next_answers' not in answer or len(answer['next_answers']) == 0:
             if type(res) is dict:
