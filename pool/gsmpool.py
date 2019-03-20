@@ -164,9 +164,13 @@ class ModemDriver:
             if type(tmp_answer) is not dict:
                 break
         data = rep['data']
-        response.cancel()
+        try:
+            response.cancel()
+            msg = response.message
+        except Exception as ex :
+            msg = 'not msg timeou or unknow error'
 
-        return {'status': rep['status'], 'response': response.message, 'data': data}
+        return {'status': rep['status'], 'response': msg, 'data': data}
 
     def process_ussd_old(self, modem, code, answers):
         modem.smsEncoding = "GSM"

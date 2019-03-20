@@ -43,8 +43,7 @@ class WsHandler:
         trans.save()
 
         results = md.proceed_momo(self.response['data'])
-        pprint(results)
-
+        # pprint(results)
 
         results = {
             'transaction_id': self.response['transaction_id'],
