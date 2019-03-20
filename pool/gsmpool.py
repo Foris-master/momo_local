@@ -63,6 +63,8 @@ class ModemDriver:
         results = {}
         modem = GsmModem(station['port'], BAUDRATE)
         try:
+            if modem.alive:
+                raise CommandError
             modem.connect()
             modem.waitForNetworkCoverage(10)
 
@@ -130,6 +132,8 @@ class ModemDriver:
         modem = GsmModem(port, BAUDRATE)
         result = {}
         try:
+            if modem.alive:
+                raise CommandError
             modem.connect()
             print(modem.supportedCommands)
 
@@ -217,6 +221,8 @@ class ModemDriver:
         result = {}
         modem = GsmModem(port, BAUDRATE)
         try:
+            if modem.alive:
+                raise CommandError
             modem.connect()
             modem.waitForNetworkCoverage(10)
 
@@ -360,6 +366,8 @@ class ModemDriver:
         results = {}
         modem = GsmModem(port, BAUDRATE)
         try:
+            if modem.alive:
+                raise CommandError
             modem.connect()
             modem.waitForNetworkCoverage(10)
 
@@ -369,15 +377,18 @@ class ModemDriver:
 
             # try:
             # memory can SM (sim) ME ( device storage) or MT for all
-            for sms in modem.listStoredSms(delete=True):
+            for sms in modem.listStoredSms(delete=False):
                 is_next = False
                 tmp = {
-                    'index': sms.index,
                     'number': sms.number,
                     'text': sms.text,
                     'time': sms.time,
                     'references': []
                 }
+                try:
+                    tmp['index'] = sms.index
+                except AttributeError as ex:
+                    print(ex)
 
                 if sms.number in results:
                     for udh in sms.udh:

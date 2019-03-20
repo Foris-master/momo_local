@@ -129,7 +129,7 @@ STATIC_URL = '/static/'
 #  --- cron config
 
 CRON_CLASSES = [
-    "momo_server.cron.FetchStationJob",
+    # "momo_server.cron.FetchStationJob",
     "momo_server.cron.CollectSmsJob",
     # "momo_server.cron.UpdateTransactionStatus"
     # ...

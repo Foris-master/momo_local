@@ -48,20 +48,21 @@ class CollectSmsJob(CronJobBase):
         for port, data in results.items():
             station = Station.objects.filter(port=port).get()
             for sender, texts in data.items():
-                if SmsSender.objects.filter(name__icontains=sender).exists():
-                    s = SmsSender.objects.filter(name__icontains=sender).first()
-                    print(s.name,sender)
+                if SmsSender.objects.filter(name=sender).exists():
+                    s = SmsSender.objects.filter(name=sender).first()
+                    print(s.name, sender)
                 else:
                     s = SmsSender.objects.filter(name='unkown', operator_id=station.operator_id).get()
                 for sms in texts:
                     mt = sms['number'] + ' at ' + str(sms["time"])
-                    Sms.objects.create(
-                        content=sms['text'],
-                        references=','.join([str(r) for r in sms['references']]),
-                        sender_id=s.id,
-                        station_id=station.id,
-                        metadata=mt
-                    )
+                    if not Sms.objects.filter(mt=mt, sender_id=s.id,content=sms['text']).exists():
+                        Sms.objects.create(
+                            content=sms['text'],
+                            references=','.join([str(r) for r in sms['references']]),
+                            sender_id=s.id,
+                            station_id=station.id,
+                            metadata=mt
+                        )
         finish = time()
         t = (finish - start)
         print('time ' + str(t))

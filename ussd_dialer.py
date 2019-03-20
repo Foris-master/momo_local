@@ -27,6 +27,9 @@ if __name__ == '__main__':
     start = time()
     modem = GsmModem(PORT, BAUDRATE)
     try:
+        print(modem.alive)
+        if modem.alive:
+            raise CommandError
         modem.connect()
         modem.waitForNetworkCoverage(10)
 
