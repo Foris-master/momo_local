@@ -149,11 +149,14 @@ class ModemDriver:
         return {port: result}
 
     def process_ussd(self, modem, code, answers):
-        modem.smsEncoding = "GSM"
+        try:
+            modem.smsEncoding = "GSM"
 
-        response = modem.sendUssd(code, responseTimeout=90)  # response type: gsmmodem.modem.Us
+            response = modem.sendUssd(code, responseTimeout=90)  # response type: gsmmodem.modem.Us
 
-        tmp_answer = answers
+            tmp_answer = answers
+        except TimeoutError as ex:
+            return {'status': 'failed', 'response': 'timeout reached', 'data': None}
         while True:
             rep = self.make_reply(response, tmp_answer)
             if rep['status'] != 'success':
@@ -167,8 +170,8 @@ class ModemDriver:
         try:
             response.cancel()
             msg = response.message
-        except Exception as ex :
-            msg = 'not msg timeou or unknow error'
+        except Exception as ex:
+            msg = 'not msg timeout or unknow error'
 
         return {'status': rep['status'], 'response': msg, 'data': data}
 
@@ -507,9 +510,9 @@ class ModemDriver:
             try:
                 response = self.reply(response, a)
             except TimeoutException as ex:
-                return {'status': 'failed', 'msg': 'timeout reached', 'data': {'status':'timeout'}}
+                return {'status': 'failed', 'msg': 'timeout reached', 'data': {'status': 'timeout'}}
             except Exception as ex:
-                return {'status': 'failed', 'msg': str(ex), 'data':   {'status':'unknow'}}
+                return {'status': 'failed', 'msg': str(ex), 'data': {'status': 'unknow'}}
 
         if 'next_answers' not in answer or len(answer['next_answers']) == 0:
             if type(res) is dict:

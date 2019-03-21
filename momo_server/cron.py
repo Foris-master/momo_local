@@ -54,6 +54,10 @@ class CollectSmsJob(CronJobBase):
                 else:
                     s = SmsSender.objects.filter(name='unkown', operator_id=station.operator_id).get()
                 for sms in texts:
+                    print("------------------------------------\r\n")
+                    print("------------"+s.name+"------------------\r\n")
+                    print(sms['text']+"\r\n")
+                    print("------------------------------------\r\n\r\n")
                     mt = sms['number'] + ' at ' + str(sms["time"])
                     if not Sms.objects.filter(mt=mt, sender_id=s.id,content=sms['text']).exists():
                         Sms.objects.create(
