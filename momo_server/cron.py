@@ -62,7 +62,8 @@ class CollectSmsJob(CronJobBase):
                         print(sms['text'] + "\r\n")
                         print("------------------------------------\r\n\r\n")
                         mt = {'sender_number': sms['number']}
-                        if not Sms.objects.filter(metadata=mt, sender_id=s.id, content=sms['text']).exists():
+                        if not Sms.objects.filter(received_at__date=sms['time'], sender_id=s.id,
+                                                  content=sms['text']).exists():
                             Sms.objects.create(
                                 content=sms['text'],
                                 references=','.join([str(r) for r in sms['references']]),

@@ -205,7 +205,7 @@ def proceed_sms(sender, **kwargs):
             a = res['amount']
             a = int(float(a))
             tel = res['phone_number']
-            t = Transaction.objects.filter(recipient=tel, amount=a, status='new').first()
+            t = Transaction.objects.filter(recipient=tel, amount=a, status='pending').first()
             if t is not None:
                 p = Proof.objects.create(
                     amount=a,
