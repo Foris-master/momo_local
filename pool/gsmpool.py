@@ -384,7 +384,7 @@ class ModemDriver:
 
             # try:
             # memory can SM (sim) ME ( device storage) or MT for all
-            smsl = modem.listStoredSms(delete=True)
+            smsl = modem.listStoredSms(delete=False)
             modem.close()
             for sms in smsl:
                 is_next = False
