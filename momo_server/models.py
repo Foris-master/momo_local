@@ -11,6 +11,8 @@ from django.db import models
 from django.db.models.signals import post_init, post_save
 from django.dispatch import receiver
 
+from momo_local.settings import BASE_DIR
+
 STATION_STATES = [('free', 'FREE'), ('busy', 'BUSY'), ('offline', 'OFFLINE')]
 TRANSACTION_STATUSES = [('new', 'NEW'), ('pending', 'PENDING'), ('paid', 'PAID'), ('proven', 'PROVEN'),
                         ('cancel', 'CANCEL')]
@@ -96,7 +98,8 @@ def proceed_transaction(sender, **kwargs):
                                                                  client_secret=os.getenv('CLIENT_SECRET'))
                 # url = url + 'oauth/token/'
                 url = os.getenv('MOMO_SERVER_HTTP') + 'api/v1/transaction/prove/'
-                with open('token_save.txt', 'r') as token_file:
+                token_path = os.path.join(BASE_DIR, 'token_save.txt')
+                with open(token_path, 'r') as token_file:
                     token = token_file.read()
                     token_file.close()
                 if token is not None:
