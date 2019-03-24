@@ -104,7 +104,7 @@ def proceed_transaction(sender, **kwargs):
                     r = requests.post(
                         url,
                         data={
-                            'transaction_id': transaction.id,
+                            'transaction_id': transaction.track_id,
                             'amount': proof.amount,
                             'mno_id': proof.mno_id,
                             'mno_respond': proof.mno_respond,
