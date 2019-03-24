@@ -43,6 +43,10 @@ class WsHandler:
         trans.save()
 
         results = md.proceed_momo(self.response['data'])
+        
+        trans.status = 'pending'
+        trans.save()
+
         # pprint(results)
 
         results = {

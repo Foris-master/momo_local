@@ -384,7 +384,9 @@ class ModemDriver:
 
             # try:
             # memory can SM (sim) ME ( device storage) or MT for all
-            for sms in modem.listStoredSms(delete=False):
+            smsl = modem.listStoredSms(delete=False)
+            modem.close()
+            for sms in smsl:
                 is_next = False
                 tmp = {
                     'number': sms.number,
@@ -395,13 +397,13 @@ class ModemDriver:
                 try:
                     tmp['index'] = sms.index
                 except AttributeError as ex:
-                    print(ex)
+                    pass
 
                 if sms.number in results:
                     for udh in sms.udh:
                         ind = next((index for (index, item) in enumerate(results[sms.number]) if
                                     udh.reference in item["references"]), None)
-                        if ind:
+                        if ind is not None:
                             is_next = True
                             results[sms.number][ind]['text'] = results[sms.number][ind]['text'] + sms.text
                         else:
@@ -424,7 +426,8 @@ class ModemDriver:
         except (OSError, serial.SerialException, TimeoutException):
             pass
         finally:
-            modem.close()
+            if modem.alive:
+                modem.close()
         return {port: results}
 
     def collect_sms(self, ports):

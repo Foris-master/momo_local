@@ -37,7 +37,7 @@ if __name__ == '__main__':
     except CommandError as e:
         # print('DTMF playback failed: {0}'.format(e))
         modem.smsEncoding = "GSM"
-        response = modem.sendUssd(USSD_STRING, responseTimeout=90)  # response type: gsmmodem.modem.Us
+        response = modem.sendUssd(USSD_STRING, responseTimeout=60)  # response type: gsmmodem.modem.Us
         msg = response.message
         answer = None
         try:

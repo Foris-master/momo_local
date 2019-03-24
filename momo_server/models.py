@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -107,7 +108,8 @@ def proceed_transaction(sender, **kwargs):
                             'amount': proof.amount,
                             'mno_id': proof.mno_id,
                             'mno_respond': proof.mno_respond,
-                            'station': proof.station.imsi
+                            'station': proof.station.imsi,
+                            'metadata': proof.metadata
                         },
                         headers=headers
                     )
@@ -126,6 +128,7 @@ def proceed_transaction(sender, **kwargs):
 class Proof(models.Model):
     amount = models.IntegerField(blank=False)
     mno_id = models.CharField(blank=False, max_length=100)
+    metadata = models.CharField(blank=True, max_length=255)
     mno_respond = models.TextField()
     station = models.ForeignKey(Station, on_delete=models.CASCADE)
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
@@ -197,6 +200,8 @@ def proceed_sms(sender, **kwargs):
             else:
                 res = None
         if type(res) is dict:
+            mt = json.loads(sms.metadata)
+            mt['new_balance'] = res['new_balance']
             a = res['amount']
             a = int(float(a))
             tel = res['phone_number']
@@ -207,7 +212,8 @@ def proceed_sms(sender, **kwargs):
                     mno_id=res['mno_id'],
                     mno_respond=msg,
                     station_id=sms.station_id,
-                    transaction_id=t.id
+                    transaction_id=t.id,
+                    metadata=json.dumps(mt)
                 )
                 t.status = 'proven'
                 t.save()

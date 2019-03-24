@@ -1,10 +1,11 @@
 import difflib
+import json
 from pprint import pprint
-from time import time
+from time import time, ctime
 
 from django_cron import CronJobBase, Schedule
 
-from momo_server.models import Operator, Station, Sms, SmsSender
+from momo_server.models import Operator, Station, Sms, SmsSender, Transaction
 from pool.dbpool import update_stations
 from pool.gsmpool import ModemDriver
 
@@ -38,38 +39,41 @@ class CollectSmsJob(CronJobBase):
     def do(self):
         start = time()
 
-        stations = Station.objects.all()
-        ports = []
-        for station in stations:
-            ports.append(station.port)
+        if not Transaction.objects.filter(status='new').exists():
 
-        md = ModemDriver()
-        results = md.collect_sms(ports)
-        for port, data in results.items():
-            station = Station.objects.filter(port=port).get()
-            for sender, texts in data.items():
-                if SmsSender.objects.filter(name=sender).exists():
-                    s = SmsSender.objects.filter(name=sender).first()
-                    print(s.name, sender)
-                else:
-                    s = SmsSender.objects.filter(name='unkown', operator_id=station.operator_id).get()
-                for sms in texts:
-                    print("------------------------------------\r\n")
-                    print("------------"+s.name+"------------------\r\n")
-                    print(sms['text']+"\r\n")
-                    print("------------------------------------\r\n\r\n")
-                    mt = sms['number'] + ' at ' + str(sms["time"])
-                    if not Sms.objects.filter(mt=mt, sender_id=s.id,content=sms['text']).exists():
-                        Sms.objects.create(
-                            content=sms['text'],
-                            references=','.join([str(r) for r in sms['references']]),
-                            sender_id=s.id,
-                            station_id=station.id,
-                            metadata=mt
-                        )
+            stations = Station.objects.all()
+            ports = []
+            for station in stations:
+                ports.append(station.port)
+
+            md = ModemDriver()
+            results = md.collect_sms(ports)
+            for port, data in results.items():
+                station = Station.objects.filter(port=port).get()
+                for sender, texts in data.items():
+                    if SmsSender.objects.filter(name=sender).exists():
+                        s = SmsSender.objects.filter(name=sender).first()
+                        # print(s.name, sender)
+                    else:
+                        s = SmsSender.objects.filter(name='unkown', operator_id=station.operator_id).get()
+                    for sms in texts:
+                        print("------------------------------------\r\n")
+                        print("------------" + s.name + "------------------\r\n")
+                        print(sms['text'] + "\r\n")
+                        print("------------------------------------\r\n\r\n")
+                        mt = {'sender_number': sms['number']}
+                        if not Sms.objects.filter(metadata=mt, sender_id=s.id, content=sms['text']).exists():
+                            Sms.objects.create(
+                                content=sms['text'],
+                                references=','.join([str(r) for r in sms['references']]),
+                                sender_id=s.id,
+                                station_id=station.id,
+                                received_at=sms["time"],
+                                metadata=json.dumps(mt)
+                            )
         finish = time()
         t = (finish - start)
-        print('time ' + str(t))
+        print('time ' + str(t), ctime())
 
 
 class UpdateTransactionStatus(CronJobBase):
