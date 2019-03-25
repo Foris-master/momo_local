@@ -63,15 +63,24 @@ class CollectSmsJob(CronJobBase):
                         print("------------------------------------\r\n\r\n")
                         # received_at__date=sms['time'],
                         mt = {'sender_number': sms['number']}
-                        if not Sms.objects.filter(sender_id=s.id, content=sms['text']).exists():
-                            Sms.objects.create(
-                                content=sms['text'],
-                                references=','.join([str(r) for r in sms['references']]),
-                                sender_id=s.id,
-                                station_id=station.id,
-                                received_at=sms["time"],
-                                metadata=json.dumps(mt)
-                            )
+                        ref = ','.join([str(r) for r in sms['references']])
+                        olsms = Sms.objects.filter(sender_id=s.id, references=ref).first()
+                        if olsms is not None:
+                            olsms.content = olsms.content + sms['text']
+                            olsms.save()
+                        else:
+
+                            if not Sms.objects.filter(sender_id=s.id, content=sms['text']).exists():
+
+                                Sms.objects.create(
+                                    content=sms['text'],
+                                    references=ref,
+                                    sender_id=s.id,
+                                    station_id=station.id,
+                                    received_at=sms["time"],
+                                    metadata=json.dumps(mt)
+                                )
+                        
         finish = time()
         t = (finish - start)
         print('time ' + str(t), ctime())
