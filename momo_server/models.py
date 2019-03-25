@@ -14,6 +14,7 @@ from django.dispatch import receiver
 from momo_local.settings import BASE_DIR
 
 STATION_STATES = [('free', 'FREE'), ('busy', 'BUSY'), ('offline', 'OFFLINE')]
+SMS_TYPES = [('partial', 'PARTIAL'), ('whole', 'WHOLE')]
 TRANSACTION_STATUSES = [('new', 'NEW'), ('pending', 'PENDING'), ('paid', 'PAID'), ('proven', 'PROVEN'),
                         ('cancel', 'CANCEL')]
 
@@ -161,6 +162,7 @@ class SmsSender(models.Model):
 class Sms(models.Model):
     content = models.TextField(blank=False)
     metadata = models.CharField(max_length=255, null=True)
+    type = models.CharField(choices=SMS_TYPES, default='partial', max_length=25)
     references = models.TextField(blank=True, null=True)
     station = models.ForeignKey(Station, on_delete=models.CASCADE)
     sender = models.ForeignKey(SmsSender, on_delete=models.CASCADE)
@@ -179,47 +181,48 @@ class Sms(models.Model):
 def proceed_sms(sender, **kwargs):
     sms = kwargs.get('instance')
 
-    res = {}
-    key = '([\{].+?[\}])'
-    value = '(.+)'
-    msg = sms.content
-    for mask in sms.sender.smsmask_set.all():
-        des = mask.content
-        keys = re.findall(key, des, re.DOTALL)
-        if keys:
-            for k in keys:
-                des = des.replace(k, value)
-            # msg= re.compile(r'[\n\r\t]').sub(' ',msg)
-            values = re.findall(des, msg)
-            if values:
-                if type(values[0]) is tuple:
-                    values = values[0]
-                for i, v in enumerate(values):
-                    k = keys[i].replace(' ', '')
-                    k = k.replace('{', '')
-                    k = k.replace('}', '')
-                    res[k] = v
-                # print(res)
-            else:
-                res = None
-        if type(res) is dict:
-            mt = json.loads(sms.metadata)
-            mt['new_balance'] = res['new_balance']
-            a = res['amount']
-            a = int(float(a))
-            tel = res['phone_number']
-            t = Transaction.objects.filter(recipient=tel, amount=a, status='pending').first()
-            if t is not None:
-                p = Proof.objects.create(
-                    amount=a,
-                    mno_id=res['mno_id'],
-                    mno_respond=msg,
-                    station_id=sms.station_id,
-                    transaction_id=t.id,
-                    metadata=json.dumps(mt)
-                )
-                t.status = 'proven'
-                t.save()
+    if sms.type == 'whole':
+        res = {}
+        key = '([\{].+?[\}])'
+        value = '(.+)'
+        msg = sms.content
+        for mask in sms.sender.smsmask_set.all():
+            des = mask.content
+            keys = re.findall(key, des, re.DOTALL)
+            if keys:
+                for k in keys:
+                    des = des.replace(k, value)
+                # msg= re.compile(r'[\n\r\t]').sub(' ',msg)
+                values = re.findall(des, msg)
+                if values:
+                    if type(values[0]) is tuple:
+                        values = values[0]
+                    for i, v in enumerate(values):
+                        k = keys[i].replace(' ', '')
+                        k = k.replace('{', '')
+                        k = k.replace('}', '')
+                        res[k] = v
+                    # print(res)
+                else:
+                    res = None
+            if type(res) is dict:
+                mt = json.loads(sms.metadata)
+                mt['new_balance'] = res['new_balance']
+                a = res['amount']
+                a = int(float(a))
+                tel = res['phone_number']
+                t = Transaction.objects.filter(recipient=tel, amount=a, status='pending').first()
+                if t is not None:
+                    p = Proof.objects.create(
+                        amount=a,
+                        mno_id=res['mno_id'],
+                        mno_respond=msg,
+                        station_id=sms.station_id,
+                        transaction_id=t.id,
+                        metadata=json.dumps(mt)
+                    )
+                    t.status = 'proven'
+                    t.save()
 
 
 class SmsMask(models.Model):

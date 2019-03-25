@@ -59,28 +59,40 @@ class CollectSmsJob(CronJobBase):
                     for sms in texts:
                         print("------------------------------------\r\n")
                         print("------------" + s.name + "------------------\r\n")
-                        print(sms['text'] + "\r\n")
+                        print(json.dumps(sms['texts']) + "\r\n")
                         print("------------------------------------\r\n\r\n")
                         # received_at__date=sms['time'],
                         mt = {'sender_number': sms['number']}
                         ref = ','.join([str(r) for r in sms['references']])
-                        olsms = Sms.objects.filter(sender_id=s.id, references=ref).first()
+                        olsms = Sms.objects.filter(sender_id=s.id, references=ref, type='partial').first()
                         if olsms is not None:
-                            olsms.content = olsms.content + sms['text']
+                            txt = json.loads(olsms.content)
+                            for i, cont in enumerate(sms['texts']):
+                                if cont is not None:
+                                    txt[i] = cont
+                            if None not in txt:
+                                olsms.type = 'whole'
+                                olsms.content = ''.join(txt)
+                            else:
+                                olsms.content = json.dumps(txt)
                             olsms.save()
                         else:
+                            if len(sms['parts']) == 1 or len(sms['references']) == 0:
+                                t = 'whole'
+                                cont = sms['texts'][0]
+                            else:
+                                t = 'partial'
+                                cont = json.dumps(sms['texts'])
+                            Sms.objects.create(
+                                type=t,
+                                content=cont,
+                                references=ref,
+                                sender_id=s.id,
+                                station_id=station.id,
+                                received_at=sms["time"],
+                                metadata=json.dumps(mt)
+                            )
 
-                            if not Sms.objects.filter(sender_id=s.id, content=sms['text']).exists():
-
-                                Sms.objects.create(
-                                    content=sms['text'],
-                                    references=ref,
-                                    sender_id=s.id,
-                                    station_id=station.id,
-                                    received_at=sms["time"],
-                                    metadata=json.dumps(mt)
-                                )
-                        
         finish = time()
         t = (finish - start)
         print('time ' + str(t), ctime())

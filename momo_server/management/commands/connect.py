@@ -67,7 +67,7 @@ def on_message(ws, message):
     # res = md.proceed()
     wsh = WsHandler(message)
     res = wsh.proceed()
-    pprint(res)
+    # pprint(res)
     ws.send(json.dumps(res))
 
 

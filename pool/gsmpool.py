@@ -384,15 +384,17 @@ class ModemDriver:
 
             # try:
             # memory can SM (sim) ME ( device storage) or MT for all
-            smsl = modem.listStoredSms(delete=True)
+            modem.readStoredSms()
+            smsl = modem.listStoredSms(delete=False)
             modem.close()
             for sms in smsl:
                 is_next = False
                 tmp = {
                     'number': sms.number,
-                    'text': sms.text,
+                    'texts': [],
                     'time': sms.time,
-                    'references': []
+                    'references': [],
+                    'parts': 1
                 }
                 try:
                     tmp['index'] = sms.index
@@ -400,21 +402,47 @@ class ModemDriver:
                     pass
 
                 if sms.number in results:
+                    parts = None
+                    pos = None
                     for udh in sms.udh:
+                        parts = udh.parts
+                        pos = udh.number
                         ind = next((index for (index, item) in enumerate(results[sms.number]) if
                                     udh.reference in item["references"]), None)
                         if ind is not None:
                             is_next = True
-                            results[sms.number][ind]['text'] = results[sms.number][ind]['text'] + sms.text
+                            # results[sms.number][ind]['text'] = results[sms.number][ind]['text'] + sms.text
+                            results[sms.number][ind]['texts'][udh.number-1] = sms.text
                         else:
                             tmp['references'].append(udh.reference)
                     if not is_next:
+                        tmp['texts'] = [sms.text]
+                        if parts is not None:
+                            tt = [None] * parts
+                            tt[pos - 1] = sms.text
+                            tmp['parts'] = parts
+                            tmp['texts'] = tt
+                        else:
+                            tmp['parts'] = 1
+                            tmp['texts'] = [sms.text]
                         results[sms.number].append(
                             tmp
                         )
                 else:
+                    parts = None
+                    pos = None
                     for udh in sms.udh:
                         tmp['references'].append(udh.reference)
+                        parts = udh.parts
+                        pos = udh.number
+                    if parts is not None:
+                        tt = [None] * parts
+                        tt[pos - 1] = sms.text
+                        tmp['parts'] = parts
+                        tmp['texts'] = tt
+                    else:
+                        tmp['parts'] = 1
+                        tmp['texts'] = [sms.text]
                     results[sms.number] = [tmp]
 
 
