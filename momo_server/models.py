@@ -14,7 +14,7 @@ from django.dispatch import receiver
 from momo_local.settings import BASE_DIR
 
 STATION_STATES = [('free', 'FREE'), ('busy', 'BUSY'), ('offline', 'OFFLINE')]
-SMS_TYPES = [('partial', 'PARTIAL'), ('whole', 'WHOLE')]
+SMS_TYPES = [('partial', 'PARTIAL'), ('whole', 'WHOLE'), ('used', 'USED')]
 TRANSACTION_STATUSES = [('new', 'NEW'), ('pending', 'PENDING'), ('paid', 'PAID'), ('proven', 'PROVEN'),
                         ('cancel', 'CANCEL')]
 
@@ -223,6 +223,8 @@ def proceed_sms(sender, **kwargs):
                     )
                     t.status = 'proven'
                     t.save()
+            sms.status = 'used'
+            sms.save()
 
 
 class SmsMask(models.Model):

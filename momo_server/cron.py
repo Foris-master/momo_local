@@ -55,7 +55,7 @@ class CollectSmsJob(CronJobBase):
                         s = SmsSender.objects.filter(name=sender).first()
                         # print(s.name, sender)
                     else:
-                        s = SmsSender.objects.filter(name='unkown', operator_id=station.operator_id).get()
+                        s = SmsSender.objects.filter(name__contains='unknow', operator_id=station.operator_id).get()
                     for sms in texts:
                         print("------------------------------------\r\n")
                         print("------------" + s.name + "------------------\r\n")
@@ -77,9 +77,9 @@ class CollectSmsJob(CronJobBase):
                                 olsms.content = json.dumps(txt)
                             olsms.save()
                         else:
-                            if len(sms['parts']) == 1 or len(sms['references']) == 0:
+                            if None not in sms['texts'] or len(sms['references']) == 0:
                                 t = 'whole'
-                                cont = sms['texts'][0]
+                                cont = ''.join(sms['texts'])
                             else:
                                 t = 'partial'
                                 cont = json.dumps(sms['texts'])

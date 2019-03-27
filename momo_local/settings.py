@@ -128,6 +128,8 @@ STATIC_URL = '/static/'
 
 #  --- cron config
 
+
+DJANGO_CRON_DELETE_LOGS_OLDER_THAN = 7
 CRON_CLASSES = [
     # "momo_server.cron.FetchStationJob",
     "momo_server.cron.CollectSmsJob",

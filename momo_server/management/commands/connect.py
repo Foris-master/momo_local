@@ -22,7 +22,7 @@ class Command(BaseCommand):
     token = None
 
     def handle(self, *args, **options):
-        websocket.enableTrace(True)
+        websocket.enableTrace(False)
         try:
             if self.token is None:
                 print('fetching new token')
