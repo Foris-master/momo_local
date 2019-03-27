@@ -185,13 +185,19 @@ def proceed_sms(sender, **kwargs):
         res = {}
         key = '([\{].+?[\}])'
         value = '(.+)'
+        # match without space
+        value2 = '([^\ ]+)'
         msg = sms.content
         for mask in sms.sender.smsmask_set.all():
             des = mask.content
             keys = re.findall(key, des, re.DOTALL)
             if keys:
                 for k in keys:
-                    des = des.replace(k, value)
+                    # ns stand for match without space (no space)
+                    if '-ns' in k:
+                        des = des.replace(k, value2)
+                    else:
+                        des = des.replace(k, value)
                 # msg= re.compile(r'[\n\r\t]').sub(' ',msg)
                 values = re.findall(des, msg)
                 if values:
@@ -201,6 +207,8 @@ def proceed_sms(sender, **kwargs):
                         k = keys[i].replace(' ', '')
                         k = k.replace('{', '')
                         k = k.replace('}', '')
+                        if '-' in k:
+                            k = k.split('-')[0]
                         res[k] = v
                     # print(res)
                 else:
@@ -223,8 +231,10 @@ def proceed_sms(sender, **kwargs):
                     )
                     t.status = 'proven'
                     t.save()
-            sms.status = 'used'
+            post_save.disconnect(proceed_sms, sender=Sms)
+            sms.type = 'used'
             sms.save()
+            post_save.connect(proceed_sms, sender=Sms)
 
 
 class SmsMask(models.Model):
