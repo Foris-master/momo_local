@@ -239,6 +239,7 @@ def proceed_sms(sender, **kwargs):
 
 class SmsMask(models.Model):
     content = models.TextField(blank=False)
+    tag = models.CharField(blank=False, max_length=10)
     sender = models.ForeignKey(SmsSender, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

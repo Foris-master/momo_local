@@ -43,9 +43,11 @@ class WsHandler:
         trans.save()
 
         results = md.proceed_momo(self.response['data'])
-        
-        trans.status = 'pending'
-        trans.save()
+        if results['data']['status'] == 'close-ok':
+            trans.status = 'pending'
+            trans.save()
+        else:
+            trans.delete()
 
         # pprint(results)
 
